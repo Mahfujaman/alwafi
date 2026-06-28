@@ -7,6 +7,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Amiri:ital,wght@0,400;0,700;1,400&family=Noto+Serif+Bengali:wght@400;600;700&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
 <style>
+  /* ===== LIGHT MODE (default) ===== */
   :root {
     --ink:        #1a1208;
     --parchment:  #faf6ee;
@@ -21,6 +22,27 @@
     --muted:      #7a6b4e;
     --white:      #ffffff;
     --shadow:     rgba(26,18,8,0.10);
+    --card-bg:    #ffffff;
+    --fav-color:  #e8a020;
+  }
+
+  /* ===== DARK MODE ===== */
+  body.dark {
+    --ink:        #e8dcc8;
+    --parchment:  #141210;
+    --cream:      #1e1a14;
+    --gold:       #d4a84b;
+    --gold-light: #e8c070;
+    --gold-pale:  #2a2010;
+    --teal:       #4ab8b8;
+    --teal-light: #60d0d0;
+    --teal-pale:  #0a2020;
+    --border:     #3a3020;
+    --muted:      #9a8a6a;
+    --white:      #1e1a14;
+    --shadow:     rgba(0,0,0,0.4);
+    --card-bg:    #1e1a14;
+    --fav-color:  #f0c040;
   }
 
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -30,30 +52,34 @@
     background: var(--parchment);
     color: var(--ink);
     min-height: 100vh;
+    transition: background 0.3s, color 0.3s;
   }
 
   /* ===== HEADER ===== */
   header {
     background: linear-gradient(135deg, #1a1208 0%, #2d1f0a 60%, #1e3a3a 100%);
-    color: var(--white);
-    padding: 0;
+    color: #fff;
     position: sticky;
     top: 0;
     z-index: 100;
-    box-shadow: 0 2px 16px rgba(0,0,0,0.3);
+    box-shadow: 0 2px 16px rgba(0,0,0,0.35);
+  }
+
+  body.dark header {
+    background: linear-gradient(135deg, #0a0806 0%, #1a1008 60%, #0a1a1a 100%);
   }
 
   .header-inner {
     max-width: 900px;
     margin: 0 auto;
-    padding: 18px 20px 14px;
+    padding: 16px 20px 12px;
   }
 
   .logo-row {
     display: flex;
     align-items: center;
     gap: 14px;
-    margin-bottom: 14px;
+    margin-bottom: 12px;
   }
 
   .logo-arabic {
@@ -64,42 +90,62 @@
     direction: rtl;
   }
 
+  .logo-text { flex: 1; }
   .logo-text h1 {
     font-size: 1.1rem;
     font-weight: 700;
-    color: var(--white);
+    color: #fff;
     letter-spacing: 0.02em;
   }
-
   .logo-text p {
     font-size: 0.78rem;
-    color: rgba(255,255,255,0.55);
+    color: rgba(255,255,255,0.5);
     font-family: 'Inter', sans-serif;
     margin-top: 2px;
   }
+
+  /* Dark mode toggle */
+  .header-actions {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+  }
+
+  #darkToggle {
+    background: rgba(255,255,255,0.1);
+    border: 1.5px solid rgba(255,255,255,0.2);
+    border-radius: 20px;
+    color: #fff;
+    padding: 5px 12px;
+    font-size: 0.82rem;
+    font-family: 'Inter', sans-serif;
+    cursor: pointer;
+    transition: all 0.2s;
+    white-space: nowrap;
+  }
+  #darkToggle:hover { background: rgba(255,255,255,0.18); }
 
   /* ===== SEARCH BAR ===== */
   .search-wrapper {
     position: relative;
     display: flex;
     align-items: center;
-    gap: 8px;
   }
 
   #searchInput {
     flex: 1;
-    padding: 12px 48px 12px 16px;
+    padding: 11px 44px 11px 16px;
     border: 2px solid rgba(181,136,42,0.4);
     border-radius: 8px;
     background: rgba(255,255,255,0.08);
-    color: var(--white);
+    color: #fff;
     font-family: 'Amiri', 'Noto Serif Bengali', serif;
     font-size: 1.15rem;
     outline: none;
     transition: border-color 0.2s, background 0.2s;
     direction: auto;
+    width: 100%;
   }
-
   #searchInput::placeholder { color: rgba(255,255,255,0.4); }
   #searchInput:focus {
     border-color: var(--gold-light);
@@ -118,6 +164,7 @@
     display: flex;
     gap: 6px;
     margin-top: 10px;
+    flex-wrap: wrap;
   }
 
   .mode-tab {
@@ -131,20 +178,18 @@
     cursor: pointer;
     transition: all 0.18s;
   }
-
   .mode-tab.active {
     background: var(--gold);
     border-color: var(--gold);
-    color: var(--white);
+    color: #fff;
     font-weight: 600;
   }
-
   .mode-tab:not(.active):hover {
     border-color: var(--gold-light);
     color: var(--gold-light);
   }
 
-  /* ===== MAIN CONTENT ===== */
+  /* ===== MAIN ===== */
   main {
     max-width: 900px;
     margin: 0 auto;
@@ -164,40 +209,51 @@
     font-size: 0.82rem;
     font-family: 'Inter', sans-serif;
     color: var(--muted);
+    transition: background 0.3s, border-color 0.3s;
   }
-
   #resultCount { font-weight: 500; color: var(--teal); }
   #loadStatus { color: var(--gold); }
 
-  /* ===== RESULTS LIST ===== */
+  /* ===== ENTRY CARD ===== */
   #resultsList { list-style: none; }
 
   .entry-card {
-    background: var(--white);
+    background: var(--card-bg);
     border: 1px solid var(--border);
     border-radius: 10px;
     margin-bottom: 10px;
     overflow: hidden;
-    transition: box-shadow 0.18s, border-color 0.18s;
+    transition: box-shadow 0.18s, border-color 0.18s, background 0.3s;
     cursor: pointer;
   }
-
   .entry-card:hover {
     box-shadow: 0 4px 18px var(--shadow);
     border-color: var(--gold);
   }
-
   .entry-card.expanded { border-color: var(--teal); }
 
   .entry-header {
     display: flex;
     align-items: center;
-    justify-content: space-between;
-    padding: 14px 18px;
-    gap: 12px;
+    padding: 13px 16px;
+    gap: 10px;
   }
 
-  /* Arabic→Bengali: word on left (RTL display), meaning on right */
+  /* Favorite star button */
+  .fav-btn {
+    background: none;
+    border: none;
+    font-size: 1.2rem;
+    cursor: pointer;
+    color: var(--border);
+    flex: 0 0 auto;
+    padding: 2px 4px;
+    transition: color 0.2s, transform 0.15s;
+    line-height: 1;
+  }
+  .fav-btn:hover { transform: scale(1.2); }
+  .fav-btn.active { color: var(--fav-color); }
+
   .entry-word {
     font-family: 'Amiri', serif;
     font-size: 1.5rem;
@@ -205,10 +261,9 @@
     direction: rtl;
     text-align: right;
     flex: 0 0 auto;
-    max-width: 45%;
+    max-width: 42%;
     line-height: 1.4;
   }
-
   .entry-word.bangla-word {
     font-family: 'Noto Serif Bengali', serif;
     font-size: 1.05rem;
@@ -218,25 +273,23 @@
 
   .entry-arrow {
     color: var(--gold);
-    font-size: 1rem;
+    font-size: 0.9rem;
     flex: 0 0 auto;
-    opacity: 0.7;
+    opacity: 0.6;
   }
 
   .entry-preview {
     flex: 1;
     font-family: 'Noto Serif Bengali', serif;
-    font-size: 0.9rem;
+    font-size: 0.88rem;
     color: var(--muted);
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
-    direction: ltr;
   }
-
   .entry-preview.arabic-meaning {
     font-family: 'Amiri', serif;
-    font-size: 1.1rem;
+    font-size: 1.05rem;
     direction: rtl;
     text-align: right;
     color: var(--ink);
@@ -245,10 +298,9 @@
   .entry-toggle {
     flex: 0 0 auto;
     color: var(--muted);
-    font-size: 0.8rem;
+    font-size: 0.75rem;
     transition: transform 0.2s;
   }
-
   .entry-card.expanded .entry-toggle { transform: rotate(180deg); }
 
   /* Detail panel */
@@ -256,18 +308,14 @@
     display: none;
     padding: 0 18px 16px;
     border-top: 1px solid var(--border);
-    margin-top: 0;
   }
-
   .entry-card.expanded .entry-detail { display: block; }
 
-  .detail-inner {
-    padding-top: 14px;
-  }
+  .detail-inner { padding-top: 14px; }
 
   .detail-label {
     font-family: 'Inter', sans-serif;
-    font-size: 0.7rem;
+    font-size: 0.68rem;
     font-weight: 600;
     letter-spacing: 0.08em;
     text-transform: uppercase;
@@ -277,21 +325,21 @@
 
   .detail-word-full {
     font-family: 'Amiri', serif;
-    font-size: 2.2rem;
+    font-size: 2rem;
     direction: rtl;
     text-align: right;
     color: var(--ink);
     line-height: 1.5;
-    margin-bottom: 14px;
+    margin-bottom: 12px;
     padding: 12px 16px;
     background: var(--gold-pale);
     border-radius: 8px;
     border-right: 4px solid var(--gold);
+    transition: background 0.3s;
   }
-
   .detail-word-full.bangla-word-full {
     font-family: 'Noto Serif Bengali', serif;
-    font-size: 1.4rem;
+    font-size: 1.35rem;
     direction: ltr;
     text-align: left;
     background: var(--teal-pale);
@@ -306,11 +354,11 @@
     padding: 12px 16px;
     background: var(--cream);
     border-radius: 8px;
+    transition: background 0.3s;
   }
-
   .detail-meaning.arabic-meaning-full {
     font-family: 'Amiri', serif;
-    font-size: 1.25rem;
+    font-size: 1.2rem;
     direction: rtl;
     text-align: right;
     background: var(--gold-pale);
@@ -319,7 +367,7 @@
   .pronunciation {
     font-family: 'Inter', sans-serif;
     color: var(--teal);
-    font-size: 0.88rem;
+    font-size: 0.86rem;
     margin-top: 8px;
   }
 
@@ -329,7 +377,6 @@
     padding: 60px 20px;
     color: var(--muted);
   }
-
   .empty-state .empty-arabic {
     font-family: 'Amiri', serif;
     font-size: 4rem;
@@ -338,26 +385,17 @@
     margin-bottom: 12px;
   }
 
-  .empty-state p { font-size: 0.95rem; }
-
   /* ===== LOADING ===== */
-  .loading-screen {
-    text-align: center;
-    padding: 80px 20px;
-  }
-
+  .loading-screen { text-align: center; padding: 80px 20px; }
   .loading-spinner {
-    width: 48px;
-    height: 48px;
+    width: 44px; height: 44px;
     border: 4px solid var(--border);
     border-top-color: var(--gold);
     border-radius: 50%;
     animation: spin 0.8s linear infinite;
-    margin: 0 auto 20px;
+    margin: 0 auto 18px;
   }
-
   @keyframes spin { to { transform: rotate(360deg); } }
-
   .loading-arabic {
     font-family: 'Amiri', serif;
     font-size: 1.8rem;
@@ -370,42 +408,40 @@
   .pagination {
     display: flex;
     justify-content: center;
-    gap: 8px;
+    gap: 6px;
     margin-top: 20px;
     flex-wrap: wrap;
   }
-
   .page-btn {
-    padding: 7px 14px;
+    padding: 6px 13px;
     border: 1.5px solid var(--border);
     border-radius: 6px;
-    background: var(--white);
+    background: var(--card-bg);
     color: var(--ink);
     font-family: 'Inter', sans-serif;
-    font-size: 0.85rem;
+    font-size: 0.84rem;
     cursor: pointer;
     transition: all 0.15s;
   }
-
   .page-btn:hover { border-color: var(--gold); color: var(--gold); }
-  .page-btn.active { background: var(--gold); border-color: var(--gold); color: var(--white); }
-  .page-btn:disabled { opacity: 0.35; cursor: default; }
+  .page-btn.active { background: var(--gold); border-color: var(--gold); color: #fff; }
+  .page-btn:disabled { opacity: 0.3; cursor: default; }
 
   /* ===== FOOTER ===== */
   footer {
     text-align: center;
-    padding: 20px;
+    padding: 18px;
     color: var(--muted);
-    font-size: 0.78rem;
+    font-size: 0.76rem;
     font-family: 'Inter', sans-serif;
     border-top: 1px solid var(--border);
-    margin-top: 30px;
+    margin-top: 20px;
   }
 
   /* ===== RESPONSIVE ===== */
   @media (max-width: 600px) {
-    .entry-word { font-size: 1.2rem; max-width: 38%; }
-    .entry-preview { font-size: 0.82rem; }
+    .entry-word { font-size: 1.2rem; max-width: 36%; }
+    .entry-preview { font-size: 0.8rem; }
     .logo-arabic { font-size: 1.9rem; }
   }
 </style>
@@ -420,6 +456,9 @@
         <h1>আরবী-বাংলা অভিধান</h1>
         <p>Arabic ↔ Bengali Dictionary · ৭৪,৮৫৫ শব্দ</p>
       </div>
+      <div class="header-actions">
+        <button id="darkToggle" title="ডার্ক মোড">🌙 ডার্ক</button>
+      </div>
     </div>
     <div class="search-wrapper">
       <input type="search" id="searchInput"
@@ -431,6 +470,7 @@
       <button class="mode-tab active" data-mode="all">সব</button>
       <button class="mode-tab" data-mode="ar">আরবী → বাংলা</button>
       <button class="mode-tab" data-mode="bn">বাংলা → আরবী</button>
+      <button class="mode-tab" data-mode="fav">★ ফেভারিট</button>
     </div>
   </div>
 </header>
@@ -440,7 +480,6 @@
     <span id="resultCount">লোড হচ্ছে…</span>
     <span id="loadStatus"></span>
   </div>
-
   <div id="app">
     <div class="loading-screen">
       <div class="loading-spinner"></div>
@@ -458,11 +497,46 @@
 // ======================================================
 // STATE
 // ======================================================
-let ALL_DATA = [];       // [word, meaning, search]
+let ALL_DATA    = [];
 let filteredData = [];
-let currentMode = 'all'; // 'all' | 'ar' | 'bn'
+let currentMode = 'all';
 let currentPage = 1;
 const PAGE_SIZE = 50;
+
+// ===== FAVORITES (localStorage) =====
+function favKey(word) { return 'fav__' + word; }
+
+function isFav(word) {
+  return localStorage.getItem(favKey(word)) === '1';
+}
+
+function toggleFav(word) {
+  if (isFav(word)) localStorage.removeItem(favKey(word));
+  else localStorage.setItem(favKey(word), '1');
+}
+
+function getAllFavWords() {
+  const favs = [];
+  for (let i = 0; i < localStorage.length; i++) {
+    const k = localStorage.key(i);
+    if (k && k.startsWith('fav__')) favs.push(k.slice(5));
+  }
+  return favs;
+}
+
+// ===== DARK MODE =====
+function applyDark(on) {
+  document.body.classList.toggle('dark', on);
+  document.getElementById('darkToggle').textContent = on ? '☀ লাইট' : '🌙 ডার্ক';
+  localStorage.setItem('darkMode', on ? '1' : '0');
+}
+
+document.getElementById('darkToggle').addEventListener('click', () => {
+  applyDark(!document.body.classList.contains('dark'));
+});
+
+// Init dark mode from saved preference
+if (localStorage.getItem('darkMode') === '1') applyDark(true);
 
 // ======================================================
 // HELPERS
@@ -470,16 +544,13 @@ const PAGE_SIZE = 50;
 function isArabic(str) {
   return /[\u0600-\u06FF\u0750-\u077F\uFB50-\uFDFF\uFE70-\uFEFF]/.test(str);
 }
-
 function stripHarakat(str) {
   return str.replace(/[\u064B-\u065F\u0670]/g, '');
 }
-
 function extractPronunciation(meaning) {
   const m = meaning.match(/^\[([^\]]+)\]/);
   return m ? m[1] : null;
 }
-
 function cleanMeaning(meaning) {
   return meaning.replace(/^\[[^\]]+\]\s*/, '').trim();
 }
@@ -489,32 +560,35 @@ function cleanMeaning(meaning) {
 // ======================================================
 function applySearch(query, mode) {
   const q = query.trim().toLowerCase();
-  const qNoHarakat = stripHarakat(q);
+  const qNoH = stripHarakat(q);
+
+  if (mode === 'fav') {
+    const favWords = getAllFavWords();
+    const favSet = new Set(favWords);
+    let base = ALL_DATA.filter(d => favSet.has(d[0]));
+    if (!q) return base;
+    return base.filter(d => {
+      const w = stripHarakat(d[0].toLowerCase());
+      const m = d[1].toLowerCase();
+      return w.includes(qNoH) || m.includes(q);
+    });
+  }
 
   if (!q) {
-    switch (mode) {
-      case 'ar': return ALL_DATA.filter(d => isArabic(d[0]));
-      case 'bn': return ALL_DATA.filter(d => !isArabic(d[0]));
-      default:   return ALL_DATA;
-    }
+    if (mode === 'ar') return ALL_DATA.filter(d => isArabic(d[0]));
+    if (mode === 'bn') return ALL_DATA.filter(d => !isArabic(d[0]));
+    return ALL_DATA;
   }
 
   return ALL_DATA.filter(d => {
-    const word    = d[0].toLowerCase();
-    const meaning = d[1].toLowerCase();
-    const search  = d[2].toLowerCase();
-
-    // mode filter
     if (mode === 'ar' && !isArabic(d[0])) return false;
-    if (mode === 'bn' && isArabic(d[0]))  return false;
-
-    const wordNoH   = stripHarakat(word);
-    const searchNoH = stripHarakat(search);
-
-    return wordNoH.includes(qNoHarakat) ||
-           search.includes(q) ||
-           searchNoH.includes(qNoHarakat) ||
-           meaning.includes(q);
+    if (mode === 'bn' &&  isArabic(d[0])) return false;
+    const wordNoH   = stripHarakat(d[0].toLowerCase());
+    const searchNoH = stripHarakat(d[2].toLowerCase());
+    return wordNoH.includes(qNoH) ||
+           d[2].toLowerCase().includes(q) ||
+           searchNoH.includes(qNoH) ||
+           d[1].toLowerCase().includes(q);
   });
 }
 
@@ -527,10 +601,13 @@ function renderPage() {
   const slice = filteredData.slice(start, start + PAGE_SIZE);
 
   if (filteredData.length === 0) {
+    const emptyMsg = currentMode === 'fav'
+      ? 'এখনো কোনো শব্দ ফেভারিটে যোগ করা হয়নি।<br>শব্দের পাশের ★ চাপুন।'
+      : 'কোনো ফলাফল পাওয়া যায়নি।<br>অন্য শব্দ দিয়ে খুঁজুন।';
     app.innerHTML = `
       <div class="empty-state">
-        <div class="empty-arabic">لا نتائج</div>
-        <p>কোনো ফলাফল পাওয়া যায়নি।<br>অন্য শব্দ দিয়ে খুঁজুন।</p>
+        <div class="empty-arabic">${currentMode === 'fav' ? '★' : 'لا نتائج'}</div>
+        <p>${emptyMsg}</p>
       </div>`;
     return;
   }
@@ -538,21 +615,25 @@ function renderPage() {
   const ul = document.createElement('ul');
   ul.id = 'resultsList';
 
-  slice.forEach((d, i) => {
+  slice.forEach(d => {
     const [word, meaning, search] = d;
-    const arabicEntry = isArabic(word);
-    const pron = arabicEntry ? extractPronunciation(meaning) : null;
+    const arabicEntry   = isArabic(word);
+    const pron          = arabicEntry ? extractPronunciation(meaning) : null;
     const cleanedMeaning = arabicEntry ? cleanMeaning(meaning) : meaning;
-    const previewMeaning = cleanedMeaning.length > 60
-      ? cleanedMeaning.slice(0, 60) + '…'
+    const previewMeaning = cleanedMeaning.length > 58
+      ? cleanedMeaning.slice(0, 58) + '…'
       : cleanedMeaning;
 
     const li = document.createElement('li');
     li.className = 'entry-card';
+
+    const favActive = isFav(word) ? 'active' : '';
+
     li.innerHTML = `
       <div class="entry-header">
+        <button class="fav-btn ${favActive}" title="ফেভারিটে যোগ করুন">★</button>
         <div class="entry-word ${arabicEntry ? '' : 'bangla-word'}">${word}</div>
-        <span class="entry-arrow">${arabicEntry ? '→' : '→'}</span>
+        <span class="entry-arrow">→</span>
         <div class="entry-preview ${arabicEntry ? '' : 'arabic-meaning'}">${previewMeaning}</div>
         <span class="entry-toggle">▾</span>
       </div>
@@ -567,7 +648,23 @@ function renderPage() {
       </div>
     `;
 
-    li.querySelector('.entry-header').addEventListener('click', () => {
+    // Favorite button
+    const favBtn = li.querySelector('.fav-btn');
+    favBtn.addEventListener('click', e => {
+      e.stopPropagation();
+      toggleFav(word);
+      favBtn.classList.toggle('active', isFav(word));
+      // if in fav mode, re-render after toggle
+      if (currentMode === 'fav') {
+        filteredData = applySearch(document.getElementById('searchInput').value, 'fav');
+        updateStats();
+        renderPage();
+      }
+    });
+
+    // Expand card
+    li.querySelector('.entry-header').addEventListener('click', e => {
+      if (e.target.classList.contains('fav-btn')) return;
       li.classList.toggle('expanded');
     });
 
@@ -587,23 +684,19 @@ function renderPage() {
 }
 
 function renderPagination() {
-  const total = filteredData.length;
-  const totalPages = Math.ceil(total / PAGE_SIZE);
+  const totalPages = Math.ceil(filteredData.length / PAGE_SIZE);
   if (totalPages <= 1) return null;
 
-  const maxButtons = 7;
-  let start = Math.max(1, currentPage - 3);
-  let end   = Math.min(totalPages, start + maxButtons - 1);
-  if (end - start < maxButtons - 1) start = Math.max(1, end - maxButtons + 1);
+  const maxBtns = 7;
+  let s = Math.max(1, currentPage - 3);
+  let e = Math.min(totalPages, s + maxBtns - 1);
+  if (e - s < maxBtns - 1) s = Math.max(1, e - maxBtns + 1);
 
   let html = '<div class="pagination">';
-  html += `<button class="page-btn" data-page="${currentPage - 1}" ${currentPage === 1 ? 'disabled' : ''}>‹ আগে</button>`;
-
-  for (let p = start; p <= end; p++) {
-    html += `<button class="page-btn ${p === currentPage ? 'active' : ''}" data-page="${p}">${p}</button>`;
-  }
-
-  html += `<button class="page-btn" data-page="${currentPage + 1}" ${currentPage === totalPages ? 'disabled' : ''}>পরে ›</button>`;
+  html += `<button class="page-btn" data-page="${currentPage-1}" ${currentPage===1?'disabled':''}>‹ আগে</button>`;
+  for (let p = s; p <= e; p++)
+    html += `<button class="page-btn ${p===currentPage?'active':''}" data-page="${p}">${p}</button>`;
+  html += `<button class="page-btn" data-page="${currentPage+1}" ${currentPage===totalPages?'disabled':''}>পরে ›</button>`;
   html += '</div>';
   return html;
 }
@@ -619,10 +712,12 @@ function attachPaginationEvents() {
 }
 
 function updateStats() {
-  const total = filteredData.length;
-  const showing = Math.min(PAGE_SIZE, total - (currentPage - 1) * PAGE_SIZE);
+  const total   = filteredData.length;
+  const showing = Math.min(PAGE_SIZE, total - (currentPage-1)*PAGE_SIZE);
   const el = document.getElementById('resultCount');
-  if (total === ALL_DATA.length) {
+  if (currentMode === 'fav') {
+    el.textContent = `ফেভারিট: ${total.toLocaleString('bn')}টি শব্দ`;
+  } else if (total === ALL_DATA.length) {
     el.textContent = `মোট ${total.toLocaleString('bn')} শব্দ · দেখাচ্ছে ${showing}টি`;
   } else {
     el.textContent = `${total.toLocaleString('bn')} ফলাফল · পৃষ্ঠা ${currentPage}`;
@@ -630,28 +725,26 @@ function updateStats() {
 }
 
 // ======================================================
-// SEARCH INPUT
+// EVENTS
 // ======================================================
 let searchTimer;
 document.getElementById('searchInput').addEventListener('input', e => {
   clearTimeout(searchTimer);
   searchTimer = setTimeout(() => {
-    currentPage = 1;
+    currentPage  = 1;
     filteredData = applySearch(e.target.value, currentMode);
     updateStats();
     renderPage();
   }, 180);
 });
 
-// Mode tabs
 document.querySelectorAll('.mode-tab').forEach(tab => {
   tab.addEventListener('click', () => {
     document.querySelectorAll('.mode-tab').forEach(t => t.classList.remove('active'));
     tab.classList.add('active');
-    currentMode = tab.dataset.mode;
-    currentPage = 1;
-    const q = document.getElementById('searchInput').value;
-    filteredData = applySearch(q, currentMode);
+    currentMode  = tab.dataset.mode;
+    currentPage  = 1;
+    filteredData = applySearch(document.getElementById('searchInput').value, currentMode);
     updateStats();
     renderPage();
   });
@@ -661,31 +754,26 @@ document.querySelectorAll('.mode-tab').forEach(tab => {
 // DATA LOADING
 // ======================================================
 async function loadDictionary() {
-  const statusEl = document.getElementById('loadStatus');
-  statusEl.textContent = 'ডেটা লোড হচ্ছে…';
-
+  document.getElementById('loadStatus').textContent = 'ডেটা লোড হচ্ছে…';
   try {
     const resp = await fetch('dict_data.json');
     if (!resp.ok) throw new Error('fetch failed');
-    ALL_DATA = await resp.json();
-
+    ALL_DATA     = await resp.json();
     filteredData = ALL_DATA;
-    currentPage = 1;
+    currentPage  = 1;
     updateStats();
     renderPage();
-    statusEl.textContent = '';
+    document.getElementById('loadStatus').textContent = '';
     document.getElementById('resultCount').textContent =
       `মোট ${ALL_DATA.length.toLocaleString('bn')} শব্দ লোড সম্পন্ন`;
-
   } catch (err) {
     document.getElementById('app').innerHTML = `
       <div class="empty-state">
         <div class="empty-arabic">خطأ</div>
         <p><strong>ডেটা লোড করা যায়নি।</strong><br>
-        dict_data.json ফাইলটি একই ফোল্ডারে আছে কিনা নিশ্চিত করুন।<br>
-        অথবা local server দিয়ে চালু করুন: <code>python3 -m http.server</code></p>
+        dict_data.json ফাইলটি একই ফোল্ডারে আছে কিনা নিশ্চিত করুন।</p>
       </div>`;
-    statusEl.textContent = '⚠ লোড ব্যর্থ';
+    document.getElementById('loadStatus').textContent = '⚠ লোড ব্যর্থ';
   }
 }
 
