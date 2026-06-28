@@ -1,0 +1,695 @@
+<!DOCTYPE html>
+<html lang="bn" dir="ltr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>وافي — আরবী-বাংলা অভিধান</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Amiri:ital,wght@0,400;0,700;1,400&family=Noto+Serif+Bengali:wght@400;600;700&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink:        #1a1208;
+    --parchment:  #faf6ee;
+    --cream:      #f2ead8;
+    --gold:       #b5882a;
+    --gold-light: #d4a84b;
+    --gold-pale:  #f5e6c0;
+    --teal:       #1e6b6b;
+    --teal-light: #2a8f8f;
+    --teal-pale:  #e0f2f2;
+    --border:     #ddd0b0;
+    --muted:      #7a6b4e;
+    --white:      #ffffff;
+    --shadow:     rgba(26,18,8,0.10);
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Noto Serif Bengali', 'Amiri', serif;
+    background: var(--parchment);
+    color: var(--ink);
+    min-height: 100vh;
+  }
+
+  /* ===== HEADER ===== */
+  header {
+    background: linear-gradient(135deg, #1a1208 0%, #2d1f0a 60%, #1e3a3a 100%);
+    color: var(--white);
+    padding: 0;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    box-shadow: 0 2px 16px rgba(0,0,0,0.3);
+  }
+
+  .header-inner {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 18px 20px 14px;
+  }
+
+  .logo-row {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 14px;
+  }
+
+  .logo-arabic {
+    font-family: 'Amiri', serif;
+    font-size: 2.4rem;
+    color: var(--gold-light);
+    line-height: 1;
+    direction: rtl;
+  }
+
+  .logo-text h1 {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--white);
+    letter-spacing: 0.02em;
+  }
+
+  .logo-text p {
+    font-size: 0.78rem;
+    color: rgba(255,255,255,0.55);
+    font-family: 'Inter', sans-serif;
+    margin-top: 2px;
+  }
+
+  /* ===== SEARCH BAR ===== */
+  .search-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  #searchInput {
+    flex: 1;
+    padding: 12px 48px 12px 16px;
+    border: 2px solid rgba(181,136,42,0.4);
+    border-radius: 8px;
+    background: rgba(255,255,255,0.08);
+    color: var(--white);
+    font-family: 'Amiri', 'Noto Serif Bengali', serif;
+    font-size: 1.15rem;
+    outline: none;
+    transition: border-color 0.2s, background 0.2s;
+    direction: auto;
+  }
+
+  #searchInput::placeholder { color: rgba(255,255,255,0.4); }
+  #searchInput:focus {
+    border-color: var(--gold-light);
+    background: rgba(255,255,255,0.12);
+  }
+
+  .search-icon {
+    position: absolute;
+    right: 14px;
+    color: var(--gold-light);
+    font-size: 1.1rem;
+    pointer-events: none;
+  }
+
+  .mode-tabs {
+    display: flex;
+    gap: 6px;
+    margin-top: 10px;
+  }
+
+  .mode-tab {
+    padding: 5px 14px;
+    border-radius: 20px;
+    border: 1.5px solid rgba(181,136,42,0.35);
+    background: transparent;
+    color: rgba(255,255,255,0.6);
+    font-size: 0.8rem;
+    font-family: 'Noto Serif Bengali', serif;
+    cursor: pointer;
+    transition: all 0.18s;
+  }
+
+  .mode-tab.active {
+    background: var(--gold);
+    border-color: var(--gold);
+    color: var(--white);
+    font-weight: 600;
+  }
+
+  .mode-tab:not(.active):hover {
+    border-color: var(--gold-light);
+    color: var(--gold-light);
+  }
+
+  /* ===== MAIN CONTENT ===== */
+  main {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 20px 16px 60px;
+  }
+
+  /* ===== STATS BAR ===== */
+  .stats-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 16px;
+    background: var(--cream);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    margin-bottom: 16px;
+    font-size: 0.82rem;
+    font-family: 'Inter', sans-serif;
+    color: var(--muted);
+  }
+
+  #resultCount { font-weight: 500; color: var(--teal); }
+  #loadStatus { color: var(--gold); }
+
+  /* ===== RESULTS LIST ===== */
+  #resultsList { list-style: none; }
+
+  .entry-card {
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    margin-bottom: 10px;
+    overflow: hidden;
+    transition: box-shadow 0.18s, border-color 0.18s;
+    cursor: pointer;
+  }
+
+  .entry-card:hover {
+    box-shadow: 0 4px 18px var(--shadow);
+    border-color: var(--gold);
+  }
+
+  .entry-card.expanded { border-color: var(--teal); }
+
+  .entry-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 18px;
+    gap: 12px;
+  }
+
+  /* Arabic→Bengali: word on left (RTL display), meaning on right */
+  .entry-word {
+    font-family: 'Amiri', serif;
+    font-size: 1.5rem;
+    color: var(--ink);
+    direction: rtl;
+    text-align: right;
+    flex: 0 0 auto;
+    max-width: 45%;
+    line-height: 1.4;
+  }
+
+  .entry-word.bangla-word {
+    font-family: 'Noto Serif Bengali', serif;
+    font-size: 1.05rem;
+    direction: ltr;
+    text-align: left;
+  }
+
+  .entry-arrow {
+    color: var(--gold);
+    font-size: 1rem;
+    flex: 0 0 auto;
+    opacity: 0.7;
+  }
+
+  .entry-preview {
+    flex: 1;
+    font-family: 'Noto Serif Bengali', serif;
+    font-size: 0.9rem;
+    color: var(--muted);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    direction: ltr;
+  }
+
+  .entry-preview.arabic-meaning {
+    font-family: 'Amiri', serif;
+    font-size: 1.1rem;
+    direction: rtl;
+    text-align: right;
+    color: var(--ink);
+  }
+
+  .entry-toggle {
+    flex: 0 0 auto;
+    color: var(--muted);
+    font-size: 0.8rem;
+    transition: transform 0.2s;
+  }
+
+  .entry-card.expanded .entry-toggle { transform: rotate(180deg); }
+
+  /* Detail panel */
+  .entry-detail {
+    display: none;
+    padding: 0 18px 16px;
+    border-top: 1px solid var(--border);
+    margin-top: 0;
+  }
+
+  .entry-card.expanded .entry-detail { display: block; }
+
+  .detail-inner {
+    padding-top: 14px;
+  }
+
+  .detail-label {
+    font-family: 'Inter', sans-serif;
+    font-size: 0.7rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 6px;
+  }
+
+  .detail-word-full {
+    font-family: 'Amiri', serif;
+    font-size: 2.2rem;
+    direction: rtl;
+    text-align: right;
+    color: var(--ink);
+    line-height: 1.5;
+    margin-bottom: 14px;
+    padding: 12px 16px;
+    background: var(--gold-pale);
+    border-radius: 8px;
+    border-right: 4px solid var(--gold);
+  }
+
+  .detail-word-full.bangla-word-full {
+    font-family: 'Noto Serif Bengali', serif;
+    font-size: 1.4rem;
+    direction: ltr;
+    text-align: left;
+    background: var(--teal-pale);
+    border-right: none;
+    border-left: 4px solid var(--teal);
+  }
+
+  .detail-meaning {
+    font-size: 1rem;
+    line-height: 1.8;
+    color: var(--ink);
+    padding: 12px 16px;
+    background: var(--cream);
+    border-radius: 8px;
+  }
+
+  .detail-meaning.arabic-meaning-full {
+    font-family: 'Amiri', serif;
+    font-size: 1.25rem;
+    direction: rtl;
+    text-align: right;
+    background: var(--gold-pale);
+  }
+
+  .pronunciation {
+    font-family: 'Inter', sans-serif;
+    color: var(--teal);
+    font-size: 0.88rem;
+    margin-top: 8px;
+  }
+
+  /* ===== EMPTY STATE ===== */
+  .empty-state {
+    text-align: center;
+    padding: 60px 20px;
+    color: var(--muted);
+  }
+
+  .empty-state .empty-arabic {
+    font-family: 'Amiri', serif;
+    font-size: 4rem;
+    color: var(--gold-pale);
+    direction: rtl;
+    margin-bottom: 12px;
+  }
+
+  .empty-state p { font-size: 0.95rem; }
+
+  /* ===== LOADING ===== */
+  .loading-screen {
+    text-align: center;
+    padding: 80px 20px;
+  }
+
+  .loading-spinner {
+    width: 48px;
+    height: 48px;
+    border: 4px solid var(--border);
+    border-top-color: var(--gold);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+    margin: 0 auto 20px;
+  }
+
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .loading-arabic {
+    font-family: 'Amiri', serif;
+    font-size: 1.8rem;
+    color: var(--gold);
+    direction: rtl;
+    margin-bottom: 8px;
+  }
+
+  /* ===== PAGINATION ===== */
+  .pagination {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    margin-top: 20px;
+    flex-wrap: wrap;
+  }
+
+  .page-btn {
+    padding: 7px 14px;
+    border: 1.5px solid var(--border);
+    border-radius: 6px;
+    background: var(--white);
+    color: var(--ink);
+    font-family: 'Inter', sans-serif;
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+
+  .page-btn:hover { border-color: var(--gold); color: var(--gold); }
+  .page-btn.active { background: var(--gold); border-color: var(--gold); color: var(--white); }
+  .page-btn:disabled { opacity: 0.35; cursor: default; }
+
+  /* ===== FOOTER ===== */
+  footer {
+    text-align: center;
+    padding: 20px;
+    color: var(--muted);
+    font-size: 0.78rem;
+    font-family: 'Inter', sans-serif;
+    border-top: 1px solid var(--border);
+    margin-top: 30px;
+  }
+
+  /* ===== RESPONSIVE ===== */
+  @media (max-width: 600px) {
+    .entry-word { font-size: 1.2rem; max-width: 38%; }
+    .entry-preview { font-size: 0.82rem; }
+    .logo-arabic { font-size: 1.9rem; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-inner">
+    <div class="logo-row">
+      <div class="logo-arabic">وافي</div>
+      <div class="logo-text">
+        <h1>আরবী-বাংলা অভিধান</h1>
+        <p>Arabic ↔ Bengali Dictionary · ৭৪,৮৫৫ শব্দ</p>
+      </div>
+    </div>
+    <div class="search-wrapper">
+      <input type="search" id="searchInput"
+             placeholder="আরবী বা বাংলায় খুঁজুন… مثال: كتب / বই"
+             autocomplete="off" autocorrect="off" spellcheck="false">
+      <span class="search-icon">🔍</span>
+    </div>
+    <div class="mode-tabs">
+      <button class="mode-tab active" data-mode="all">সব</button>
+      <button class="mode-tab" data-mode="ar">আরবী → বাংলা</button>
+      <button class="mode-tab" data-mode="bn">বাংলা → আরবী</button>
+    </div>
+  </div>
+</header>
+
+<main>
+  <div class="stats-bar">
+    <span id="resultCount">লোড হচ্ছে…</span>
+    <span id="loadStatus"></span>
+  </div>
+
+  <div id="app">
+    <div class="loading-screen">
+      <div class="loading-spinner"></div>
+      <div class="loading-arabic">يُحَمَّل…</div>
+      <p>অভিধান লোড হচ্ছে, একটু অপেক্ষা করুন…</p>
+    </div>
+  </div>
+</main>
+
+<footer>
+  وافي আরবী-বাংলা অভিধান · Android অ্যাপ থেকে রূপান্তরিত · ৭৪,৮৫৫ শব্দ
+</footer>
+
+<script>
+// ======================================================
+// STATE
+// ======================================================
+let ALL_DATA = [];       // [word, meaning, search]
+let filteredData = [];
+let currentMode = 'all'; // 'all' | 'ar' | 'bn'
+let currentPage = 1;
+const PAGE_SIZE = 50;
+
+// ======================================================
+// HELPERS
+// ======================================================
+function isArabic(str) {
+  return /[\u0600-\u06FF\u0750-\u077F\uFB50-\uFDFF\uFE70-\uFEFF]/.test(str);
+}
+
+function stripHarakat(str) {
+  return str.replace(/[\u064B-\u065F\u0670]/g, '');
+}
+
+function extractPronunciation(meaning) {
+  const m = meaning.match(/^\[([^\]]+)\]/);
+  return m ? m[1] : null;
+}
+
+function cleanMeaning(meaning) {
+  return meaning.replace(/^\[[^\]]+\]\s*/, '').trim();
+}
+
+// ======================================================
+// SEARCH & FILTER
+// ======================================================
+function applySearch(query, mode) {
+  const q = query.trim().toLowerCase();
+  const qNoHarakat = stripHarakat(q);
+
+  if (!q) {
+    switch (mode) {
+      case 'ar': return ALL_DATA.filter(d => isArabic(d[0]));
+      case 'bn': return ALL_DATA.filter(d => !isArabic(d[0]));
+      default:   return ALL_DATA;
+    }
+  }
+
+  return ALL_DATA.filter(d => {
+    const word    = d[0].toLowerCase();
+    const meaning = d[1].toLowerCase();
+    const search  = d[2].toLowerCase();
+
+    // mode filter
+    if (mode === 'ar' && !isArabic(d[0])) return false;
+    if (mode === 'bn' && isArabic(d[0]))  return false;
+
+    const wordNoH   = stripHarakat(word);
+    const searchNoH = stripHarakat(search);
+
+    return wordNoH.includes(qNoHarakat) ||
+           search.includes(q) ||
+           searchNoH.includes(qNoHarakat) ||
+           meaning.includes(q);
+  });
+}
+
+// ======================================================
+// RENDER
+// ======================================================
+function renderPage() {
+  const app = document.getElementById('app');
+  const start = (currentPage - 1) * PAGE_SIZE;
+  const slice = filteredData.slice(start, start + PAGE_SIZE);
+
+  if (filteredData.length === 0) {
+    app.innerHTML = `
+      <div class="empty-state">
+        <div class="empty-arabic">لا نتائج</div>
+        <p>কোনো ফলাফল পাওয়া যায়নি।<br>অন্য শব্দ দিয়ে খুঁজুন।</p>
+      </div>`;
+    return;
+  }
+
+  const ul = document.createElement('ul');
+  ul.id = 'resultsList';
+
+  slice.forEach((d, i) => {
+    const [word, meaning, search] = d;
+    const arabicEntry = isArabic(word);
+    const pron = arabicEntry ? extractPronunciation(meaning) : null;
+    const cleanedMeaning = arabicEntry ? cleanMeaning(meaning) : meaning;
+    const previewMeaning = cleanedMeaning.length > 60
+      ? cleanedMeaning.slice(0, 60) + '…'
+      : cleanedMeaning;
+
+    const li = document.createElement('li');
+    li.className = 'entry-card';
+    li.innerHTML = `
+      <div class="entry-header">
+        <div class="entry-word ${arabicEntry ? '' : 'bangla-word'}">${word}</div>
+        <span class="entry-arrow">${arabicEntry ? '→' : '→'}</span>
+        <div class="entry-preview ${arabicEntry ? '' : 'arabic-meaning'}">${previewMeaning}</div>
+        <span class="entry-toggle">▾</span>
+      </div>
+      <div class="entry-detail">
+        <div class="detail-inner">
+          <div class="detail-label">${arabicEntry ? 'আরবী শব্দ' : 'বাংলা শব্দ'}</div>
+          <div class="detail-word-full ${arabicEntry ? '' : 'bangla-word-full'}">${word}</div>
+          ${pron ? `<div class="pronunciation">উচ্চারণ: ${pron}</div>` : ''}
+          <div class="detail-label" style="margin-top:12px">${arabicEntry ? 'বাংলা অর্থ' : 'আরবী অর্থ'}</div>
+          <div class="detail-meaning ${arabicEntry ? '' : 'arabic-meaning-full'}">${cleanedMeaning}</div>
+        </div>
+      </div>
+    `;
+
+    li.querySelector('.entry-header').addEventListener('click', () => {
+      li.classList.toggle('expanded');
+    });
+
+    ul.appendChild(li);
+  });
+
+  const paginationHTML = renderPagination();
+  app.innerHTML = '';
+  app.appendChild(ul);
+
+  if (paginationHTML) {
+    const pDiv = document.createElement('div');
+    pDiv.innerHTML = paginationHTML;
+    app.appendChild(pDiv.firstChild);
+    attachPaginationEvents();
+  }
+}
+
+function renderPagination() {
+  const total = filteredData.length;
+  const totalPages = Math.ceil(total / PAGE_SIZE);
+  if (totalPages <= 1) return null;
+
+  const maxButtons = 7;
+  let start = Math.max(1, currentPage - 3);
+  let end   = Math.min(totalPages, start + maxButtons - 1);
+  if (end - start < maxButtons - 1) start = Math.max(1, end - maxButtons + 1);
+
+  let html = '<div class="pagination">';
+  html += `<button class="page-btn" data-page="${currentPage - 1}" ${currentPage === 1 ? 'disabled' : ''}>‹ আগে</button>`;
+
+  for (let p = start; p <= end; p++) {
+    html += `<button class="page-btn ${p === currentPage ? 'active' : ''}" data-page="${p}">${p}</button>`;
+  }
+
+  html += `<button class="page-btn" data-page="${currentPage + 1}" ${currentPage === totalPages ? 'disabled' : ''}>পরে ›</button>`;
+  html += '</div>';
+  return html;
+}
+
+function attachPaginationEvents() {
+  document.querySelectorAll('.page-btn:not([disabled])').forEach(btn => {
+    btn.addEventListener('click', () => {
+      currentPage = parseInt(btn.dataset.page);
+      renderPage();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
+  });
+}
+
+function updateStats() {
+  const total = filteredData.length;
+  const showing = Math.min(PAGE_SIZE, total - (currentPage - 1) * PAGE_SIZE);
+  const el = document.getElementById('resultCount');
+  if (total === ALL_DATA.length) {
+    el.textContent = `মোট ${total.toLocaleString('bn')} শব্দ · দেখাচ্ছে ${showing}টি`;
+  } else {
+    el.textContent = `${total.toLocaleString('bn')} ফলাফল · পৃষ্ঠা ${currentPage}`;
+  }
+}
+
+// ======================================================
+// SEARCH INPUT
+// ======================================================
+let searchTimer;
+document.getElementById('searchInput').addEventListener('input', e => {
+  clearTimeout(searchTimer);
+  searchTimer = setTimeout(() => {
+    currentPage = 1;
+    filteredData = applySearch(e.target.value, currentMode);
+    updateStats();
+    renderPage();
+  }, 180);
+});
+
+// Mode tabs
+document.querySelectorAll('.mode-tab').forEach(tab => {
+  tab.addEventListener('click', () => {
+    document.querySelectorAll('.mode-tab').forEach(t => t.classList.remove('active'));
+    tab.classList.add('active');
+    currentMode = tab.dataset.mode;
+    currentPage = 1;
+    const q = document.getElementById('searchInput').value;
+    filteredData = applySearch(q, currentMode);
+    updateStats();
+    renderPage();
+  });
+});
+
+// ======================================================
+// DATA LOADING
+// ======================================================
+async function loadDictionary() {
+  const statusEl = document.getElementById('loadStatus');
+  statusEl.textContent = 'ডেটা লোড হচ্ছে…';
+
+  try {
+    const resp = await fetch('dict_data.json');
+    if (!resp.ok) throw new Error('fetch failed');
+    ALL_DATA = await resp.json();
+
+    filteredData = ALL_DATA;
+    currentPage = 1;
+    updateStats();
+    renderPage();
+    statusEl.textContent = '';
+    document.getElementById('resultCount').textContent =
+      `মোট ${ALL_DATA.length.toLocaleString('bn')} শব্দ লোড সম্পন্ন`;
+
+  } catch (err) {
+    document.getElementById('app').innerHTML = `
+      <div class="empty-state">
+        <div class="empty-arabic">خطأ</div>
+        <p><strong>ডেটা লোড করা যায়নি।</strong><br>
+        dict_data.json ফাইলটি একই ফোল্ডারে আছে কিনা নিশ্চিত করুন।<br>
+        অথবা local server দিয়ে চালু করুন: <code>python3 -m http.server</code></p>
+      </div>`;
+    statusEl.textContent = '⚠ লোড ব্যর্থ';
+  }
+}
+
+loadDictionary();
+</script>
+</body>
+</html>
