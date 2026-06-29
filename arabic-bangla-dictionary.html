@@ -558,20 +558,48 @@ function cleanMeaning(meaning) {
 // ======================================================
 // SEARCH & FILTER
 // ======================================================
+
+// শব্দের rank নির্ধারণ করে:
+// 0 = exact match (হুবহু মিলে)
+// 1 = শব্দের শুরু থেকে মিলে
+// 2 = মাঝে আছে
+// 99 = মিলে না
+function getMatchRank(wordNoH, searchNoH, q, qNoH, meaning) {
+  const w = wordNoH.trim();
+  const s = searchNoH.trim();
+
+  // Exact match (হরকত ছাড়া)
+  if (w === qNoH || s === qNoH) return 0;
+
+  // শব্দের শুরু থেকে মিলে
+  if (w.startsWith(qNoH) || s.startsWith(qNoH)) return 1;
+
+  // মাঝে আছে (word এর ভেতরে)
+  if (w.includes(qNoH) || s.includes(qNoH)) return 2;
+
+  // অর্থের মধ্যে আছে
+  if (meaning.includes(q)) return 3;
+
+  return 99;
+}
+
 function applySearch(query, mode) {
-  const q = query.trim().toLowerCase();
+  const q    = query.trim().toLowerCase();
   const qNoH = stripHarakat(q);
 
   if (mode === 'fav') {
-    const favWords = getAllFavWords();
-    const favSet = new Set(favWords);
+    const favSet = new Set(getAllFavWords());
     let base = ALL_DATA.filter(d => favSet.has(d[0]));
     if (!q) return base;
-    return base.filter(d => {
-      const w = stripHarakat(d[0].toLowerCase());
-      const m = d[1].toLowerCase();
-      return w.includes(qNoH) || m.includes(q);
-    });
+    const ranked = [];
+    for (const d of base) {
+      const wordNoH = stripHarakat(d[0].toLowerCase()).trim();
+      const srchNoH = stripHarakat(d[2].toLowerCase()).trim();
+      const rank = getMatchRank(wordNoH, srchNoH, q, qNoH, d[1].toLowerCase());
+      if (rank < 99) ranked.push({ d, rank });
+    }
+    ranked.sort((a, b) => a.rank - b.rank);
+    return ranked.map(r => r.d);
   }
 
   if (!q) {
@@ -580,16 +608,24 @@ function applySearch(query, mode) {
     return ALL_DATA;
   }
 
-  return ALL_DATA.filter(d => {
-    if (mode === 'ar' && !isArabic(d[0])) return false;
-    if (mode === 'bn' &&  isArabic(d[0])) return false;
-    const wordNoH   = stripHarakat(d[0].toLowerCase());
-    const searchNoH = stripHarakat(d[2].toLowerCase());
-    return wordNoH.includes(qNoH) ||
-           d[2].toLowerCase().includes(q) ||
-           searchNoH.includes(qNoH) ||
-           d[1].toLowerCase().includes(q);
+  const ranked = [];
+  for (const d of ALL_DATA) {
+    if (mode === 'ar' && !isArabic(d[0])) continue;
+    if (mode === 'bn' &&  isArabic(d[0])) continue;
+
+    const wordNoH = stripHarakat(d[0].toLowerCase()).trim();
+    const srchNoH = stripHarakat(d[2].toLowerCase()).trim();
+    const rank = getMatchRank(wordNoH, srchNoH, q, qNoH, d[1].toLowerCase());
+    if (rank < 99) ranked.push({ d, rank });
+  }
+
+  // Rank অনুযায়ী sort — একই rank এর মধ্যে শব্দের দৈর্ঘ্য অনুযায়ী (ছোট শব্দ আগে)
+  ranked.sort((a, b) => {
+    if (a.rank !== b.rank) return a.rank - b.rank;
+    return a.d[0].length - b.d[0].length;
   });
+
+  return ranked.map(r => r.d);
 }
 
 // ======================================================
